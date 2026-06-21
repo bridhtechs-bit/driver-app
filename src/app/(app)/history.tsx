@@ -1,0 +1,1 @@
+import { HistoryScreen } from '@/screens/history/HistoryScreen';\n\nexport default HistoryScreen;\n

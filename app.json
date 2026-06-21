@@ -8,7 +8,16 @@
     "scheme": "togoexpressdriver",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/expo.icon"
+      "icon": "./assets/expo.icon",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "TogoExpress utilise votre position pour la navigation et le suivi de livraison.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "TogoExpress envoie votre position au serveur pour le suivi en temps réel même en arrière-plan.",
+        "UIBackgroundModes": [
+          "location"
+        ],
+        "NSCameraUsageDescription": "La caméra est utilisée pour prendre une photo de preuve lors de la livraison.",
+        "NSPhotoLibraryAddUsageDescription": "Nécessaire pour enregistrer les preuves de livraison si demandé."
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -17,7 +26,16 @@
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_BACKGROUND_LOCATION",
+        "CAMERA",
+        "WRITE_EXTERNAL_STORAGE",
+        "READ_EXTERNAL_STORAGE"
+      ],
+      "package": "com.blanco92i.togoexpressdriver"
     },
     "web": {
       "output": "static",
@@ -34,11 +52,18 @@
             "imageWidth": 76
           }
         }
-      ]
+      ],
+      "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "19141efb-2129-4a9d-beb8-9cf5ca888486"
+      }
     }
   }
 }

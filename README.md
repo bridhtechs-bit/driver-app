@@ -54,3 +54,36 @@ Join our community of developers creating universal apps.
 
 - [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
 - [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+
+## Platform permissions & builds (for Phase 6 features)
+
+This project uses background location and camera (delivery proof). To test those features you must configure platform permissions and perform a native build.
+
+- Install dependencies:
+
+```bash
+npm install
+```
+
+- iOS (recommended):
+   - The required `Info.plist` keys have been added to `app.json` under the `ios.infoPlist` section.
+   - Background location requires a native build. Create a development build or production build with EAS:
+
+```bash
+eas build --platform ios --profile development
+```
+
+- Android (recommended):
+   - Required permissions were added to `app.json` under `android.permissions` (including `ACCESS_BACKGROUND_LOCATION` and `CAMERA`).
+   - Background location and foreground service notifications require a development build or production build:
+
+```bash
+eas build --platform android --profile development
+```
+
+- Notes:
+   - Expo Go does not support background location or some native permission behaviors — use dev/prod builds.
+   - When testing on iOS, ensure the device Settings allow Background App Refresh and Location Always/Always and When In Use.
+   - For Android 11+ background location requires the user to grant foreground location first, then background.
+
+If you want I can add an `app.json` checklist or helper scripts to streamline EAS builds.

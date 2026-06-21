@@ -1,0 +1,1 @@
+import { ProfileScreen } from '@/screens/profile/ProfileScreen';\n\nexport default ProfileScreen;\n
