@@ -1,1 +1,2 @@
-import { HistoryScreen } from '@/screens/history/HistoryScreen';\n\nexport default HistoryScreen;\n
+import { HistoryScreen } from '@/screens/history/HistoryScreen';
+export default HistoryScreen;

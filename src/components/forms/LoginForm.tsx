@@ -1,6 +1,7 @@
 import { StyleSheet, Text, TextInput, View, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLoginForm, LoginFormData } from '@/hooks/useLoginForm';
+import { Controller } from 'react-hook-form';
 import { useAuth } from '@/hooks/useAuth';
 import { colors, spacing } from '@/theme';
 
@@ -33,20 +34,26 @@ export function LoginForm({ onSuccess }: { onSuccess: () => void }) {
           {/* Email Input */}
           <View style={styles.fieldGroup}>
             <Text style={styles.label}>Email</Text>
-            <TextInput
-              style={[
-                styles.input,
-                form.formState.errors.email && styles.inputError,
-              ]}
-              placeholder="votre@email.com"
-              placeholderTextColor="#999"
-              keyboardType="email-address"
-              autoCapitalize="none"
-              autoCorrect={false}
-              editable={!loading}
-              onBlur={form.handleBlur('email')}
-              onChangeText={(value) => form.setValue('email', value)}
-              value={form.watch('email')}
+            <Controller
+              control={form.control}
+              name="email"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <TextInput
+                  style={[
+                    styles.input,
+                    form.formState.errors.email && styles.inputError,
+                  ]}
+                  placeholder="votre@email.com"
+                  placeholderTextColor="#999"
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  editable={!loading}
+                  onBlur={onBlur}
+                  onChangeText={onChange}
+                  value={value}
+                />
+              )}
             />
             {form.formState.errors.email && (
               <Text style={styles.errorText}>
@@ -58,18 +65,24 @@ export function LoginForm({ onSuccess }: { onSuccess: () => void }) {
           {/* Password Input */}
           <View style={styles.fieldGroup}>
             <Text style={styles.label}>Mot de passe</Text>
-            <TextInput
-              style={[
-                styles.input,
-                form.formState.errors.password && styles.inputError,
-              ]}
-              placeholder="••••••••"
-              placeholderTextColor="#999"
-              secureTextEntry
-              editable={!loading}
-              onBlur={form.handleBlur('password')}
-              onChangeText={(value) => form.setValue('password', value)}
-              value={form.watch('password')}
+            <Controller
+              control={form.control}
+              name="password"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <TextInput
+                  style={[
+                    styles.input,
+                    form.formState.errors.password && styles.inputError,
+                  ]}
+                  placeholder="••••••••"
+                  placeholderTextColor="#999"
+                  secureTextEntry
+                  editable={!loading}
+                  onBlur={onBlur}
+                  onChangeText={onChange}
+                  value={value}
+                />
+              )}
             />
             {form.formState.errors.password && (
               <Text style={styles.errorText}>

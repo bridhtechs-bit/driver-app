@@ -1,1 +1,2 @@
-import { ProfileScreen } from '@/screens/profile/ProfileScreen';\n\nexport default ProfileScreen;\n
+import { ProfileScreen } from '@/screens/profile/ProfileScreen';
+export default ProfileScreen;

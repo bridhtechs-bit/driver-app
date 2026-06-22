@@ -1,1 +1,2 @@
-import { DashboardScreen } from '@/screens/dashboard/DashboardScreen';\n\nexport default DashboardScreen;\n
+import { DashboardScreen } from '@/screens/dashboard/DashboardScreen';
+export default DashboardScreen;
