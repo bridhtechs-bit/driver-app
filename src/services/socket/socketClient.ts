@@ -1,6 +1,6 @@
 import { io, Socket } from 'socket.io-client';
-import { API_BASE_URL } from '@/constants/config';
-import { getAuthToken } from '@/services/secureStore';
+import Config from '@/constants/config';
+import secureStoreHelper from '@/services/api/secureStore';
 
 let socket: Socket | null = null;
 
@@ -9,8 +9,8 @@ export async function createSocketClient() {
     return socket;
   }
 
-  const token = await getAuthToken();
-  socket = io(API_BASE_URL, {
+  const token = await secureStoreHelper.getItem('token');
+  socket = io(Config.SOCKET_URL, {
     autoConnect: false,
     auth: {
       token,

@@ -1,8 +1,8 @@
 import { configureStore } from '@reduxjs/toolkit';
-import { setupListeners } from '@reduxjs/toolkit/query';
-import authReducer from '@/features/auth/authSlice';
-import driverReducer from '@/features/driver/driverSlice';
-import deliveryReducer from '@/features/delivery/deliverySlice';
+import authReducer from '@/store/slices/authSlice';
+import driverReducer from '@/store/slices/driverSlice';
+import deliveryReducer from '@/store/slices/deliverySlice';
+import activeDeliveryReducer from '@/store/slices/activeDeliverySlice';
 import { rootApi } from '@/services/api/rootApi';
 
 export const store = configureStore({
@@ -10,14 +10,12 @@ export const store = configureStore({
     auth: authReducer,
     driver: driverReducer,
     delivery: deliveryReducer,
+    activeDelivery: activeDeliveryReducer,
     [rootApi.reducerPath]: rootApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(rootApi.middleware),
-  devTools: true,
+    getDefaultMiddleware({ serializableCheck: false }).concat(rootApi.middleware),
 });
-
-setupListeners(store.dispatch);
 
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;

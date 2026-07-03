@@ -5,6 +5,7 @@ export type AuthState = {
   token: string | null;
   loading: boolean;
   error: string | null;
+  onboardingCompleted: boolean;
 };
 
 const initialState: AuthState = {
@@ -12,6 +13,7 @@ const initialState: AuthState = {
   token: null,
   loading: false,
   error: null,
+  onboardingCompleted: false,
 };
 
 const authSlice = createSlice({
@@ -34,8 +36,11 @@ const authSlice = createSlice({
     setError(state, action: PayloadAction<string | null>) {
       state.error = action.payload;
     },
+    setOnboardingCompleted(state, action: PayloadAction<boolean>) {
+      state.onboardingCompleted = action.payload;
+    },
   },
 });
 
-export const { setCredentials, clearCredentials, setLoading, setError } = authSlice.actions;
+export const { setCredentials, clearCredentials, setLoading, setError, setOnboardingCompleted } = authSlice.actions;
 export default authSlice.reducer;

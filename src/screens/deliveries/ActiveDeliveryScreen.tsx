@@ -1,13 +1,16 @@
+import React, { useState } from 'react';
 import { StyleSheet, View, Text, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ActiveDeliveryMap } from '@/components/activeDelivery/ActiveDeliveryMap';
 import { StatusPanel } from '@/components/activeDelivery/StatusPanel';
 import { DeliveryProofModal } from '@/components/activeDelivery/DeliveryProofModal';
+import { FeedbackBanner } from '@/components/common/FeedbackBanner';
 import { useActiveDelivery } from '@/hooks/useActiveDelivery';
 import { colors, spacing } from '@/theme';
 
 export function ActiveDeliveryScreen() {
-  const { delivery, driverLocation, loading, error, locationError, changeStatus } = useActiveDelivery();
+  const { delivery, driverLocation, loading, error, locationError, feedback, feedbackVariant, changeStatus, refetch } = useActiveDelivery();
+  const [showProof, setShowProof] = useState(false);
 
   if (loading && !delivery) {
     return (
@@ -28,7 +31,7 @@ export function ActiveDeliveryScreen() {
     );
   }
 
-  const handleStatusChange = async (status: 'pickedUp' | 'inTransit' | 'delivered') => {
+  const handleStatusChange = async (status: 'picked_up' | 'in_transit' | 'delivered') => {
     try {
       if (status === 'delivered') {
         // open proof modal instead of directly setting delivered
@@ -42,10 +45,7 @@ export function ActiveDeliveryScreen() {
     }
   };
 
-  const [showProof, setShowProof] = useState(false);
-
   const handleProofCompleted = async () => {
-    // after proof upload the server returns updated delivery; refetch UI
     await refetch();
   };
 
@@ -57,13 +57,15 @@ export function ActiveDeliveryScreen() {
         </View>
       )}
 
+      <FeedbackBanner message={feedback} variant={feedbackVariant} />
+
       <ActiveDeliveryMap delivery={delivery} driverLocation={driverLocation} />
 
       <View style={styles.details}>
         <Text style={styles.deliveryTitle}>Course en cours</Text>
-        <Text style={styles.address}>{delivery.pickupAddress}</Text>
-        <Text style={styles.address}>{delivery.dropOffAddress}</Text>
-        <Text style={styles.summary}>{delivery.packageDescription}</Text>
+        <Text style={styles.address}>Départ : {delivery.pickupAddress}</Text>
+        <Text style={styles.address}>Arrivée : {delivery.dropoffAddress}</Text>
+        <Text style={styles.summary}>Colis : {delivery.packageDescription || 'Non décrit'}</Text>
       </View>
 
       <StatusPanel

@@ -1,7 +1,8 @@
+import { useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { setCredentials, clearCredentials, setLoading, setError } from '@/features/auth/authSlice';
+import { setCredentials, clearCredentials, setLoading, setError } from '@/store/slices/authSlice';
 import { useLoginMutation } from '@/services/api/authApi';
-import { saveAuthToken, deleteAuthToken } from '@/services/secureStore';
+import { secureStoreHelper } from '@/services/api/secureStore';
 
 export function useAuth() {
   const dispatch = useAppDispatch();
@@ -12,13 +13,16 @@ export function useAuth() {
   const loading = useAppSelector((state) => state.auth.loading);
   const error = useAppSelector((state) => state.auth.error);
 
-  const handleLogin = async (email: string, password: string) => {
+  // Auth bootstrap is handled by `AuthInitializer` mounted at app root.
+
+  const handleLogin = async (phone: string, password: string) => {
     dispatch(setLoading(true));
     dispatch(setError(null));
     try {
-      const response = await login({ email, password }).unwrap();
-      await saveAuthToken(response.token);
-      dispatch(setCredentials({ token: response.token }));
+      const response = await login({ phone, password }).unwrap();
+      const accessToken = response.accessToken ?? (response as any).token;
+      await secureStoreHelper.setItem('token', accessToken);
+      dispatch(setCredentials({ token: accessToken }));
       return true;
     } catch (err) {
       const errorMessage = 
@@ -35,7 +39,7 @@ export function useAuth() {
   const handleLogout = async () => {
     dispatch(setLoading(true));
     try {
-      await deleteAuthToken();
+      await secureStoreHelper.deleteItem('token');
       dispatch(clearCredentials());
     } finally {
       dispatch(setLoading(false));

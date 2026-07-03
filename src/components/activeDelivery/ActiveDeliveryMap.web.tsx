@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet } from 'react-native';
-import { ActiveDelivery } from '@/services/api/types/activeDelivery';
+import { ActiveDelivery } from '@/types/activeDelivery';
 import { colors } from '@/theme';
 
 interface ActiveDeliveryMapProps {
@@ -12,7 +12,7 @@ export function ActiveDeliveryMap({ delivery, driverLocation }: ActiveDeliveryMa
     <View style={styles.container}>
       <Text style={styles.text}>Carte non disponible sur web.</Text>
       <Text style={styles.text}>Pickup: {delivery.pickupAddress}</Text>
-      <Text style={styles.text}>Dropoff: {delivery.dropOffAddress}</Text>
+      <Text style={styles.text}>Dropoff: {delivery.dropoffAddress}</Text>
       {driverLocation && <Text style={styles.text}>Vous: {driverLocation.latitude}, {driverLocation.longitude}</Text>}
     </View>
   );

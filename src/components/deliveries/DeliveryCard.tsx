@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import { colors, spacing } from '@/theme';
-import { Delivery } from '@/services/api/types/delivery';
+import { Delivery } from '@/types/delivery';
 
 interface DeliveryCardProps {
   delivery: Delivery;
@@ -12,23 +12,23 @@ export function DeliveryCard({ delivery, onAccept, disabled = false }: DeliveryC
   return (
     <View style={styles.card}>
       <View style={styles.row}>
-        <Text style={styles.title}>{delivery.customerName}</Text>
-        <Text style={styles.amount}>{delivery.amount.toFixed(0)} XOF</Text>
+        <Text style={styles.title}>{delivery.receiverName}</Text>
+        <Text style={styles.amount}>{delivery.proposedPrice.toFixed(0)} XOF</Text>
       </View>
 
-      <Text style={styles.address}>{delivery.pickupAddress}</Text>
-      <Text style={styles.address}>{delivery.dropOffAddress}</Text>
+      <Text style={styles.address}>Départ : {delivery.pickupAddress}</Text>
+      <Text style={styles.address}>Arrivée : {delivery.dropoffAddress}</Text>
 
       <View style={styles.badgeRow}>
         <View style={styles.badge}>
-          <Text style={styles.badgeText}>{delivery.distance}</Text>
+          <Text style={styles.badgeText}>{delivery.distanceKm?.toFixed(1) || '0'} km</Text>
         </View>
         <View style={[styles.badge, styles.badgeLight]}>
-          <Text style={[styles.badgeText, styles.badgeTextSecondary]}>{delivery.estimatedTime}</Text>
+          <Text style={[styles.badgeText, styles.badgeTextSecondary]}>{delivery.estimatedMinutes || '0'} min</Text>
         </View>
       </View>
 
-      <Text style={styles.package}>{delivery.packageDescription}</Text>
+      <Text style={styles.package}>{delivery.packageDescription || 'Aucune description'}</Text>
 
       <TouchableOpacity
         style={[styles.button, disabled && styles.buttonDisabled]}

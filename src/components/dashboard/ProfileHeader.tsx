@@ -31,7 +31,11 @@ export function ProfileHeader({
         </View>
       </View>
 
-      <View style={[styles.ratingBar, { width: `${ratingPercentage}%` }]} />
+      <View style={styles.ratingRow}>
+        <View style={styles.ratingTrack}>
+          <View style={[styles.ratingBar, { width: `${Math.max(ratingPercentage, 8)}%` }]} />
+        </View>
+      </View>
     </View>
   );
 }
@@ -87,10 +91,18 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: colors.textSecondary,
   },
+  ratingRow: {
+    marginTop: spacing.one,
+  },
+  ratingTrack: {
+    height: 6,
+    backgroundColor: '#F1F1F1',
+    borderRadius: 999,
+    overflow: 'hidden',
+  },
   ratingBar: {
-    height: 4,
+    height: 6,
     backgroundColor: colors.primary,
-    borderRadius: 2,
-    marginTop: spacing.two,
+    borderRadius: 999,
   },
 });

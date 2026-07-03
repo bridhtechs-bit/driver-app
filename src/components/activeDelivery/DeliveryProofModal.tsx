@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { View, Text, Modal, StyleSheet, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
+import { FeedbackBanner } from '@/components/common/FeedbackBanner';
 import * as ImagePicker from 'expo-image-picker';
 import { spacing, colors } from '@/theme';
-import { useCompleteDeliveryMutation } from '@/services/api/activeDeliveryApi';
+import { useCompleteDeliveryMutation } from '@/services/api/activeDeliveryService';
 
 interface Props {
   visible: boolean;
@@ -13,20 +14,27 @@ interface Props {
 
 export function DeliveryProofModal({ visible, onClose, deliveryId, onCompleted }: Props) {
   const [imageUri, setImageUri] = useState<string | null>(null);
+  const [feedback, setFeedback] = useState<string | null>(null);
   const [completeDelivery, { isLoading }] = useCompleteDeliveryMutation();
 
   async function takePhoto() {
     const { status } = await ImagePicker.requestCameraPermissionsAsync();
-    if (status !== 'granted') return;
+    if (status !== 'granted') {
+      setFeedback('La permission caméra est requise pour prendre une preuve.');
+      return;
+    }
 
     const result = await ImagePicker.launchCameraAsync({ quality: 0.7, base64: false });
-    if (!result.cancelled) {
+    if (!result.canceled) {
       setImageUri(result.assets?.[0]?.uri ?? (result as any).uri);
     }
   }
 
   async function submitProof() {
-    if (!imageUri) return;
+    if (!imageUri) {
+      setFeedback('Ajoutez une photo avant de finaliser la livraison.');
+      return;
+    }
 
     const form = new FormData();
     // @ts-ignore
@@ -42,10 +50,13 @@ export function DeliveryProofModal({ visible, onClose, deliveryId, onCompleted }
     });
 
     try {
+      setFeedback('Envoi de la preuve en cours…');
       await completeDelivery({ id: deliveryId, proof: form }).unwrap();
+      setFeedback('Livraison finalisée avec succès.');
       onCompleted();
       onClose();
     } catch (e) {
+      setFeedback('Impossible d’envoyer la preuve de livraison.');
       console.error('Upload proof failed', e);
     }
   }
@@ -55,6 +66,8 @@ export function DeliveryProofModal({ visible, onClose, deliveryId, onCompleted }
       <View style={styles.overlay}>
         <View style={styles.container}>
           <Text style={styles.title}>Preuve de livraison</Text>
+
+          <FeedbackBanner message={feedback} variant={feedback?.includes('Impossible') ? 'error' : feedback?.includes('succès') ? 'success' : 'info'} />
 
           {imageUri ? (
             <Image source={{ uri: imageUri }} style={styles.preview} />

@@ -1,78 +1,66 @@
-import * as TaskManager from 'expo-task-manager';
+/**
+ * backgroundLocation.ts
+ *
+ * Service responsable du démarrage, de l'arrêt et de la vérification
+ * du suivi de localisation en arrière-plan.
+ *
+ * Ce fichier ne contient AUCUNE logique de traitement de position —
+ * c'est le rôle de locationTask.ts.
+ * Il ne contient AUCUNE logique de permissions — c'est le rôle de locationPermissions.ts.
+ */
+
 import * as Location from 'expo-location';
-import { createSocketClient } from '@/services/socket/socketClient';
-import { sendDriverLocationUpdate } from '@/services/location/locationService';
+import { BACKGROUND_LOCATION_TASK, LOCATION_TRACKING_OPTIONS } from './constants';
 
-export const BACKGROUND_LOCATION_TASK = 'TOGOEXPRESS_BACKGROUND_LOCATION_TASK';
+// Import side-effect : enregistre la tâche auprès de TaskManager
+// DOIT être importé une seule fois, avant tout appel à startTracking()
+import './locationTask';
 
-TaskManager.defineTask(BACKGROUND_LOCATION_TASK, async ({ data, error }) => {
-  try {
-    if (error) {
-      console.log('[BG LOCATION] task error', error);
-      return;
-    }
+/**
+ * Démarre le tracking GPS en arrière-plan.
+ * À appeler uniquement après avoir obtenu les permissions (foreground + background).
+ *
+ * Si le tracking est déjà actif, cette fonction ne fait rien.
+ */
+export async function startTracking(): Promise<void> {
 
-    if (!data) return;
-
-    // locations array when using startLocationUpdatesAsync
-    // @ts-ignore
-    const locations = data.locations || (data as any).locations;
-    if (!locations || locations.length === 0) return;
-
-    const socket = await createSocketClient();
-    if (!socket.connected) {
-      socket.connect();
-    }
-
-    for (const loc of locations) {
-      const lat = loc.coords.latitude;
-      const lng = loc.coords.longitude;
-      try {
-        if (socket && socket.connected) {
-          socket.emit('updateLocation', { lat, lng });
-        } else {
-          await sendDriverLocationUpdate(lat, lng);
-        }
-      } catch (e) {
-        console.log('[BG LOCATION] emit failed', e);
-      }
-    }
-  } catch (e) {
-    console.log('[BG LOCATION] unexpected error', e);
+  //verifier si le tracking est déjà actif pour éviter de démarrer plusieurs fois la tâche
+  const alreadyTracking = await isTracking();
+  if (alreadyTracking) {
+    console.log('[BackgroundLocation] Tracking already active. Skipping start.');
+    return;
   }
-});
-
-export async function startBackgroundLocationTracking() {
-  const { status: foregroundStatus } = await Location.requestForegroundPermissionsAsync();
-  if (foregroundStatus !== 'granted') {
-    throw new Error('Foreground location permission denied');
-  }
-
-  const { status: backgroundStatus } = await Location.requestBackgroundPermissionsAsync();
-  if (backgroundStatus !== 'granted') {
-    throw new Error('Background location permission denied');
-  }
-
-  const hasStarted = await Location.hasStartedLocationUpdatesAsync(BACKGROUND_LOCATION_TASK);
-  if (hasStarted) return;
 
   await Location.startLocationUpdatesAsync(BACKGROUND_LOCATION_TASK, {
-    accuracy: Location.Accuracy.Balanced,
-    distanceInterval: 5,
-    // Android foreground service notification
-    foregroundService: {
-      notificationTitle: 'TogoExpress — suivi en cours',
-      notificationBody: 'Envoi de votre position au serveur',
-      notificationColor: '#E84C1A',
-    },
-    // iOS options
-    showsBackgroundLocationIndicator: true,
-    timeInterval: 5000,
+    accuracy: LOCATION_TRACKING_OPTIONS.accuracy as any,
+    distanceInterval: LOCATION_TRACKING_OPTIONS.distanceInterval,
+    timeInterval: LOCATION_TRACKING_OPTIONS.timeInterval,
+    foregroundService: LOCATION_TRACKING_OPTIONS.foregroundService,
+    showsBackgroundLocationIndicator: LOCATION_TRACKING_OPTIONS.showsBackgroundLocationIndicator,
   });
+
+  console.log('[BackgroundLocation] Tracking started.');
 }
 
-export async function stopBackgroundLocationTracking() {
-  const hasStarted = await Location.hasStartedLocationUpdatesAsync(BACKGROUND_LOCATION_TASK);
-  if (!hasStarted) return;
+/**
+ * Arrête le tracking GPS en arrière-plan.
+ * Si le tracking n'est pas actif, cette fonction ne fait rien.
+ */
+export async function stopTracking(): Promise<void> {
+  const alreadyTracking = await isTracking();
+  if (!alreadyTracking) {
+    console.log('[BackgroundLocation] Tracking not active. Skipping stop.');
+    return;
+  }
+
   await Location.stopLocationUpdatesAsync(BACKGROUND_LOCATION_TASK);
+  console.log('[BackgroundLocation] Tracking stopped.');
+}
+
+/**
+ * Vérifie si le tracking GPS est actuellement actif.
+ * Retourne true si la tâche est enregistrée et en cours d'exécution.
+ */
+export async function isTracking(): Promise<boolean> {
+  return await Location.hasStartedLocationUpdatesAsync(BACKGROUND_LOCATION_TASK);
 }

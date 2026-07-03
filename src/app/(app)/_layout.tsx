@@ -1,9 +1,11 @@
 import { Tabs } from 'expo-router';
 import { useColorScheme } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 
 export default function AppLayout() {
   const scheme = useColorScheme();
+  const insets = useSafeAreaInsets();
 
   const colors = {
     primary: '#E84C1A',
@@ -21,8 +23,8 @@ export default function AppLayout() {
         tabBarInactiveTintColor: colors.inactive,
 
         tabBarStyle: {
-          height: 65,
-          paddingBottom: 8,
+          height: 65 + insets.bottom,
+          paddingBottom: 8 + insets.bottom,
           paddingTop: 8,
         },
 

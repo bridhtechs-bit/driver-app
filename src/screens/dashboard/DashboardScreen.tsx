@@ -1,13 +1,18 @@
-import { StyleSheet, ScrollView, View, Text, ActivityIndicator, RefreshControl } from 'react-native';
+import { useState } from 'react';
+import { StyleSheet, ScrollView, View, Text, ActivityIndicator, RefreshControl, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDriver } from '@/hooks/useDriver';
 import { ProfileHeader } from '@/components/dashboard/ProfileHeader';
 import { StatusToggle } from '@/components/dashboard/StatusToggle';
 import { StatCard } from '@/components/dashboard/StatCard';
+import { CreateProfileModal } from '@/components/driver/CreateProfileModal';
+import { getDriverFullName } from '@/types/driver';
 import { colors, spacing } from '@/theme';
 
 export function DashboardScreen() {
-  const { profile, stats, loading, error, goOnline, goOffline, toggleAvailability, refetchProfile } = useDriver();
+  const { profile, stats, loading, error, createProfile, goOnline, goOffline, toggleAvailability, refetchProfile } = useDriver();
+  const [showCreateProfileModal, setShowCreateProfileModal] = useState(false);
+  const [submittingProfile, setSubmittingProfile] = useState(false);
 
   if (!profile && loading) {
     return (
@@ -20,14 +25,36 @@ export function DashboardScreen() {
   }
 
   if (!profile) {
+    const handleCreate = async (payload: { vehicleType: string; vehicleBrand: string; plateNumber: string }) => {
+      setSubmittingProfile(true);
+      try {
+        await createProfile(payload);
+      } finally {
+        setSubmittingProfile(false);
+      }
+    };
+
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.errorContainer}>
-          <Text style={styles.errorTitle}>Erreur de chargement</Text>
+          <Text style={styles.errorTitle}>Profil livreur requis</Text>
           <Text style={styles.errorMessage}>
-            Impossible de charger votre profil. Vérifiez votre connexion.
+            {error || 'Créez votre profil pour recevoir des livraisons et apparaître en ligne.'}
           </Text>
+          <TouchableOpacity style={styles.retryButton} onPress={() => setShowCreateProfileModal(true)}>
+            <Text style={styles.retryButtonText}>Créer mon profil</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.secondaryAction} onPress={() => refetchProfile()}>
+            <Text style={styles.secondaryActionText}>Réessayer</Text>
+          </TouchableOpacity>
         </View>
+
+        <CreateProfileModal
+          visible={showCreateProfileModal}
+          onClose={() => setShowCreateProfileModal(false)}
+          onSubmit={handleCreate}
+          loading={submittingProfile}
+        />
       </SafeAreaView>
     );
   }
@@ -70,6 +97,17 @@ export function DashboardScreen() {
           <Text style={styles.title}>Tableau de bord</Text>
         </View>
 
+        {/* Verification Banner */}
+        {profile.verificationStatus !== 'approved' && (
+          <View style={[styles.errorBanner, { backgroundColor: '#FFF3CD', borderLeftColor: '#FFC107' }]}>
+            <Text style={[styles.errorBannerText, { color: '#856404' }]}>
+              {profile.verificationStatus === 'pending'
+                ? 'Votre compte est en cours de vérification.'
+                : 'Votre compte a été rejeté. Veuillez contacter le support.'}
+            </Text>
+          </View>
+        )}
+
         {/* Error Banner */}
         {error && (
           <View style={styles.errorBanner}>
@@ -79,10 +117,10 @@ export function DashboardScreen() {
 
         {/* Profile Header */}
         <ProfileHeader
-          name={profile.name}
-          email={profile.email}
-          rating={profile.rating}
-          totalRatings={profile.totalRatings}
+          name={getDriverFullName(profile)}
+          email={profile.user?.email || ''}
+          rating={profile.averageRating || 0}
+          totalRatings={profile.totalDeliveries || 0}
         />
 
         {/* Status Section */}
@@ -114,7 +152,7 @@ export function DashboardScreen() {
             <View style={styles.statsGrid}>
               <StatCard
                 label="Livraisons"
-                value={stats.completedDeliveries}
+                value={stats.completedDeliveriesCount}
                 color={colors.primary}
               />
               <StatCard
@@ -218,13 +256,34 @@ const styles = StyleSheet.create({
     gap: spacing.one,
   },
   infoTitle: {
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: '700',
-    color: '#0066CC',
+    color: colors.dark,
   },
   infoText: {
-    fontSize: 13,
-    color: '#0066CC',
+    fontSize: 14,
+    color: colors.textSecondary,
     lineHeight: 20,
+  },
+  retryButton: {
+    marginTop: spacing.four,
+    backgroundColor: colors.primary,
+    paddingVertical: spacing.three,
+    paddingHorizontal: spacing.six,
+    borderRadius: 12,
+  },
+  retryButtonText: {
+    color: colors.white,
+    fontWeight: '700',
+    textAlign: 'center',
+  },
+  secondaryAction: {
+    marginTop: spacing.two,
+    paddingVertical: spacing.two,
+    paddingHorizontal: spacing.four,
+  },
+  secondaryActionText: {
+    color: colors.primary,
+    fontWeight: '600',
   },
 });

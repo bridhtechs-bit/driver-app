@@ -1,6 +1,6 @@
 import { createSocketClient } from './socketClient';
-import { Delivery } from '@/services/api/types/delivery';
-import { ActiveDelivery } from '@/services/api/types/activeDelivery';
+import { Delivery } from '@/types/delivery';
+import { ActiveDelivery } from '@/types/activeDelivery';
 
 let isSubscribedNew = false;
 

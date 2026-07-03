@@ -1,16 +1,48 @@
-import { rootApi } from '@/services/api/rootApi';
+import { rootApi } from "./rootApi";
+
+import {
+  LoginPayload,
+  LoginResponse,
+  RegisterPayload,
+  RegisterResponse,
+  ProfileResponse,
+} from "@/types/auth";
 
 export const authApi = rootApi.injectEndpoints({
-  endpoints: (build) => ({
-    login: build.mutation<{ token: string }, { email: string; password: string }>({
-      query: (credentials) => ({
-        url: '/api/auth/login',
-        method: 'POST',
-        data: credentials,
+  endpoints: (builder) => ({
+    login: builder.mutation<LoginResponse, LoginPayload>({
+      query: (body) => ({
+        url: "/auth/login",
+        method: "POST",
+        data: body,
       }),
+      invalidatesTags: ["Auth"],
+    }),
+
+    register: builder.mutation<RegisterResponse, RegisterPayload>({
+      query: (body) => ({
+        url: "/auth/register",
+        method: "POST",
+        data: {
+          ...body,
+          role: "customer",
+        },
+      }),
+      invalidatesTags: ["Auth"],
+    }),
+
+    getProfile: builder.query<ProfileResponse, void>({
+      query: () => ({
+        url: "/auth/me",
+      }),
+      providesTags: ["Auth"],
     }),
   }),
-  overrideExisting: false,
 });
 
-export const { useLoginMutation } = authApi;
+export const {
+  useLoginMutation,
+  useRegisterMutation,
+  useGetProfileQuery,
+  useLazyGetProfileQuery,
+} = authApi;

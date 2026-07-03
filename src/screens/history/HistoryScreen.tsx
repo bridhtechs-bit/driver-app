@@ -5,7 +5,7 @@ import { colors, spacing } from '@/theme';
 import { CompletedDeliveryCard } from '@/components/history/CompletedDeliveryCard';
 
 export function HistoryScreen() {
-  const { data: deliveries, isLoading, refetch, isFetching } = useGetCompletedDeliveriesQuery();
+  const { data: deliveries = [], isLoading, refetch, isFetching } = useGetCompletedDeliveriesQuery();
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
