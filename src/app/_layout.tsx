@@ -5,8 +5,9 @@ import { Provider } from 'react-redux';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { store } from '@/store';
-import { LocationEngine } from '@/components/location/LocationEngine';
-import AuthInitializer from '@/provider/AuthInitializer';
+import AuthInitializer from '../provider/AuthInitializer';
+import NavigationGuard from "@/navigation/NavigationGuard";
+import { LocationEngine } from '@/engines/LocationEngine';
 
 export const unstable_settings = {
   initialRouteName: 'index',
@@ -31,19 +32,21 @@ export default function RootLayout() {
            * Il démarre/arrête automatiquement le tracking à la connexion/déconnexion.
            */}
           <AuthInitializer>
-            <LocationEngine />
-
-            <Stack
-            screenOptions={{
-              headerShown: false,
-              animation: 'slide_from_right',
-            }}
-          >
-            <Stack.Screen name="index" options={{ animation: 'fade' }} />
-            <Stack.Screen name="onboarding" />
-            <Stack.Screen name="login" />
-            <Stack.Screen name="(app)" />
-            </Stack>
+            {/* NavigationGuard est responsable de la navigation initiale de l'application. */}
+            <NavigationGuard>
+              <LocationEngine />
+              <Stack
+                screenOptions={{
+                  headerShown: false,
+                  animation: 'slide_from_right',
+                }}
+              >
+                <Stack.Screen name="index" options={{ animation: 'fade' }} />
+                <Stack.Screen name="onboarding" />
+                <Stack.Screen name="login" />
+                <Stack.Screen name="(app)" />
+              </Stack>
+            </NavigationGuard>
           </AuthInitializer>
         </ThemeProvider>
       </SafeAreaProvider>

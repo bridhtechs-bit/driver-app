@@ -41,3 +41,46 @@ export async function subscribeToActiveDelivery(
     socket.off('deliveryCancelled', onCancelled);
   };
 }
+
+/**
+ * Écouter quand une livraison disponible est verrouillée par un autre livreur.
+ */
+export async function subscribeToDeliveryLocked(
+  onLocked: (payload: { deliveryId: string; driverId: string }) => void
+) {
+  const socket = await createSocketClient();
+
+  if (!socket.connected) {
+    socket.connect();
+  }
+
+  socket.on('deliveryLocked', onLocked);
+
+  return () => {
+    socket.off('deliveryLocked', onLocked);
+  };
+}
+
+/**
+ * Rejoindre la room d'une livraison pour recevoir les événements en temps réel.
+ */
+export async function joinDeliveryRoom(deliveryId: string) {
+  if (!deliveryId) return;
+  const socket = await createSocketClient();
+  if (!socket.connected) {
+    socket.connect();
+  }
+  socket.emit('joinDeliveryRoom', deliveryId);
+}
+
+/**
+ * Quitter la room d'une livraison.
+ */
+export async function leaveDeliveryRoom(deliveryId: string) {
+  if (!deliveryId) return;
+  const socket = await createSocketClient();
+  if (socket.connected) {
+    socket.emit('leaveDeliveryRoom', deliveryId);
+  }
+}
+

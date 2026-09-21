@@ -1,8 +1,9 @@
-export const routes = {
-  login: '/login',
-  dashboard: '/dashboard',
-  deliveries: '/deliveries',
-  activeDelivery: '/deliveries/active',
-  history: '/history',
-  profile: '/profile',
-};
+export const ROUTES = {
+  SPLASH: "/",
+  LOGIN: "/login",
+  ONBOARDING: "/onboarding",
+  APP: "/(app)",
+  ACTIVE_DELIVERY: "/deliveries/active",
+  HISTORY: "/history",
+  PROFILE: "/profile",
+} as const;

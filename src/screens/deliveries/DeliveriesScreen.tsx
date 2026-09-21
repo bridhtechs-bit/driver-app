@@ -1,7 +1,7 @@
 import { StyleSheet, View, Text, ScrollView, ActivityIndicator, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { useDeliveries } from '@/hooks/useDeliveries';
+import { useDeliveries } from '@/hooks/delivery/useDeliveries';
 import { DeliveryCard } from '@/components/deliveries/DeliveryCard';
 import { colors, spacing } from '@/theme';
 

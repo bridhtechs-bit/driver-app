@@ -4,6 +4,9 @@
     "strict": true,
     "baseUrl": ".",
     "types": ["jest", "node"],
+    "jsx": "react-jsx",
+    "moduleResolution": "bundler",
+    "allowJs": true,
     "ignoreDeprecations": "6.0",
     "paths": {
       "@/*": [

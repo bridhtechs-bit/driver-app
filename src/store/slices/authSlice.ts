@@ -50,7 +50,7 @@ const authSlice = createSlice({
       }>
     ) => {
       state.token = action.payload.token;
-      state.user = action.payload.user;
+      state.user = action.payload.user || null;
 
       state.isAuthenticated = true;
       state.initialized = true;

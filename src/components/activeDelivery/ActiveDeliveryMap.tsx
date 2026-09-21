@@ -1,101 +1,120 @@
-import MapView, { Marker, PROVIDER_GOOGLE, Region } from 'react-native-maps';
-import { StyleSheet, View, Platform, useWindowDimensions } from 'react-native';
-import { useEffect, useMemo, useRef } from 'react';
+import { useRef } from 'react';
+import {
+  StyleSheet,
+  View,
+  Platform,
+  useWindowDimensions,
+} from 'react-native';
+
+import MapView, {
+  PROVIDER_GOOGLE,
+} from 'react-native-maps';
+
 import { ActiveDelivery } from '@/types/activeDelivery';
-import { colors } from '@/theme';
+
+import { useDeliveryMap } from '@/hooks/delivery/useDeliveryMap';
+import { useDriverLocation } from '../../hooks/location/useDriverLocation';
+
+import { MapCamera } from './MapCamera';
+import { MapMarker } from './MapMarker';
+import { MapPolyline } from './MapPolyline';
 
 interface ActiveDeliveryMapProps {
   delivery: ActiveDelivery;
-  driverLocation: { latitude: number; longitude: number } | null;
+
+  driverLocation: {
+    latitude: number;
+    longitude: number;
+  } | null;
 }
 
-export function ActiveDeliveryMap({ delivery, driverLocation }: ActiveDeliveryMapProps) {
-  const mapRef = useRef<MapView | null>(null);
+export function ActiveDeliveryMap({
+  delivery,
+  driverLocation: incomingDriverLocation,
+}: ActiveDeliveryMapProps) {
+
+  const { driverLocation: reduxDriverLocation } = useDriverLocation();
+
+  const driverLocation = incomingDriverLocation ?? reduxDriverLocation;
+
+  const mapRef = useRef<MapView>(null);
+
   const { width } = useWindowDimensions();
 
-  const center = useMemo(() => {
-    if (driverLocation) return driverLocation;
-    if (delivery.pickupLocation) {
-      return { latitude: delivery.pickupLocation.lat, longitude: delivery.pickupLocation.lng };
-    }
-    if (delivery.dropoffLocation) {
-      return { latitude: delivery.dropoffLocation.lat, longitude: delivery.dropoffLocation.lng };
-    }
-    return { latitude: 6.1760, longitude: 1.2310 };
-  }, [delivery, driverLocation]);
-
-  const region: Region = useMemo(() => ({
-    latitude: center.latitude,
-    longitude: center.longitude,
-    latitudeDelta: 0.04,
-    longitudeDelta: 0.05,
-  }), [center]);
-
-  useEffect(() => {
-    if (mapRef.current) {
-      mapRef.current.animateToRegion(region, 500);
-    }
-  }, [region]);
+  /**
+   * Toute la logique cartographique
+   * est centralisée dans le hook.
+   */
+  const {
+    region,
+    markers,
+    polyline,
+  } = useDeliveryMap(
+    delivery,
+    driverLocation
+  );
 
   return (
-    <View style={[styles.mapContainer, { width }]}> 
+    <View
+      style={[
+        styles.mapContainer,
+        { width },
+      ]}
+    >
       <MapView
         ref={mapRef}
+
         style={styles.map}
-        provider={Platform.OS === 'android' ? PROVIDER_GOOGLE : undefined}
+
+        provider={
+          Platform.OS === 'android'
+            ? PROVIDER_GOOGLE
+            : undefined
+        }
+
         initialRegion={region}
+
         region={region}
+
         loadingEnabled
+
         showsUserLocation={!!driverLocation}
+
         showsMyLocationButton={!!driverLocation}
       >
-        {delivery.pickupLocation && (
-          <Marker
-            coordinate={{
-              latitude: delivery.pickupLocation.lat,
-              longitude: delivery.pickupLocation.lng,
-            }}
-            title="Point de prise"
-            description={delivery.pickupAddress}
-            pinColor={colors.primary}
-          />
-        )}
+        {/* Gestion automatique de la caméra */}
+        <MapCamera
+          mapRef={mapRef}
+          region={region}
+        />
 
-        {delivery.dropoffLocation && (
-          <Marker
-            coordinate={{
-              latitude: delivery.dropoffLocation.lat,
-              longitude: delivery.dropoffLocation.lng,
-            }}
-            title="Destination"
-            description={delivery.dropoffAddress}
-            pinColor={colors.secondary}
-          />
-        )}
+        {/* Marqueurs */}
+        <MapMarker
+          markers={markers}
+        />
 
-        {driverLocation && (
-          <Marker
-            coordinate={driverLocation}
-            title="Vous"
-            description="Position actuelle"
-            pinColor={colors.dark}
-          />
-        )}
+        {/* Itinéraire */}
+        <MapPolyline
+          coordinates={polyline}
+        />
+
       </MapView>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+
   mapContainer: {
+    height: 320,
     borderRadius: 20,
     overflow: 'hidden',
-    height: 320,
     borderWidth: 1,
     borderColor: '#E8E8E8',
   },
+
   map: {
-    width: '100%',
-    height: '100%',
+    flex: 1,
   },
+
 });

@@ -2,22 +2,18 @@
  * AuthInitializer.tsx
  *
  * Initialise l'authentification au lancement de l'application.
- *
- * Responsabilités
- * ----------------
- * • Restaurer la session depuis SecureStore
- * • Alimenter Redux
- * • Bloquer le rendu tant que le bootstrap n'est pas terminé
  */
 
 import { PropsWithChildren, useEffect, useState } from "react";
-import { ActivityIndicator, View } from "react-native";
+
+import SplashScreen from "@/components/splash/SplashScreen";
 
 import { useAppDispatch } from "@/store/hooks";
 
 import {
   setCredentials,
   initializeCompleted,
+  setOnboardingCompleted,
 } from "@/store/slices/authSlice";
 
 import { bootstrapAuth } from "@/services/auth/authBootstrap";
@@ -29,6 +25,9 @@ export default function AuthInitializer({
 
   const [loading, setLoading] = useState(true);
 
+  /**
+   * Bootstrap de la session
+   */
   useEffect(() => {
     let mounted = true;
 
@@ -40,7 +39,13 @@ export default function AuthInitializer({
 
         if (!mounted) return;
 
-        if (session.authenticated) {
+        dispatch(
+          setOnboardingCompleted(
+            session.onboardingCompleted
+          )
+        );
+
+        if (session.authenticated && session.token) {
           dispatch(
             setCredentials({
               token: session.token,
@@ -79,18 +84,11 @@ export default function AuthInitializer({
     };
   }, [dispatch]);
 
+  /**
+   * Pendant le bootstrap
+   */
   if (loading) {
-    return (
-      <View
-        style={{
-          flex: 1,
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
-        <ActivityIndicator size="large" />
-      </View>
-    );
+    return <SplashScreen />;
   }
 
   return <>{children}</>;

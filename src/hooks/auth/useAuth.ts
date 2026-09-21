@@ -1,19 +1,17 @@
-import { useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { setCredentials, clearCredentials, setLoading, setError } from '@/store/slices/authSlice';
 import { useLoginMutation } from '@/services/api/authApi';
-import { secureStoreHelper } from '@/services/api/secureStore';
+import { secureStoreHelper } from '@/services/storage/secureStore';
+import { performLogout } from '@/services/auth/logout';
 
 export function useAuth() {
   const dispatch = useAppDispatch();
   const [login, { isLoading: loginLoading }] = useLoginMutation();
-  
+
   const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
   const token = useAppSelector((state) => state.auth.token);
   const loading = useAppSelector((state) => state.auth.loading);
   const error = useAppSelector((state) => state.auth.error);
-
-  // Auth bootstrap is handled by `AuthInitializer` mounted at app root.
 
   const handleLogin = async (phone: string, password: string) => {
     dispatch(setLoading(true));
@@ -25,8 +23,8 @@ export function useAuth() {
       dispatch(setCredentials({ token: accessToken }));
       return true;
     } catch (err) {
-      const errorMessage = 
-        typeof err === 'object' && err !== null && 'data' in err 
+      const errorMessage =
+        typeof err === 'object' && err !== null && 'data' in err
           ? (err.data as any)?.message || 'Erreur de connexion'
           : 'Erreur de connexion';
       dispatch(setError(errorMessage));
@@ -39,8 +37,12 @@ export function useAuth() {
   const handleLogout = async () => {
     dispatch(setLoading(true));
     try {
-      await secureStoreHelper.deleteItem('token');
-      dispatch(clearCredentials());
+      await performLogout(dispatch, {
+        replace: (path: string) => {
+          const { router } = require('expo-router');
+          router.replace(path);
+        },
+      });
     } finally {
       dispatch(setLoading(false));
     }

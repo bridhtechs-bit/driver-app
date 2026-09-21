@@ -1,8 +1,9 @@
 import { useRouter } from "expo-router";
 import { useAppDispatch } from "@/store/hooks";
 import { useLoginMutation } from "@/services/api/authApi";
-import secureStoreHelper from "@/services/api/secureStore";
+import secureStoreHelper from "@/services/storage/secureStore";
 import { setCredentials } from "@/store/slices/authSlice";
+import { ROUTES } from "@/navigation/routes";
 
 export function useLogin() {
   const router = useRouter();
@@ -38,7 +39,7 @@ export function useLogin() {
       })
     );
 
-    router.replace("/");
+    router.replace(ROUTES.SPLASH);
 
     return response.user;
   };

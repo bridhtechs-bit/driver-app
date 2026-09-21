@@ -1,13 +1,17 @@
 import { View, Text, StyleSheet } from 'react-native';
 import { ActiveDelivery } from '@/types/activeDelivery';
 import { colors } from '@/theme';
+import { useDriverLocation } from '../../hooks/location/useDriverLocation';
 
 interface ActiveDeliveryMapProps {
   delivery: ActiveDelivery;
   driverLocation: { latitude: number; longitude: number } | null;
 }
 
-export function ActiveDeliveryMap({ delivery, driverLocation }: ActiveDeliveryMapProps) {
+export function ActiveDeliveryMap({ delivery, driverLocation: incomingDriverLocation }: ActiveDeliveryMapProps) {
+  const { driverLocation: reduxDriverLocation } = useDriverLocation();
+  const driverLocation = incomingDriverLocation ?? reduxDriverLocation;
+
   return (
     <View style={styles.container}>
       <Text style={styles.text}>Carte non disponible sur web.</Text>

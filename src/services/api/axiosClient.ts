@@ -1,6 +1,7 @@
 import axios from "axios";
 import Config from "../../constants/config";
-import secureStoreHelper from "./secureStore";
+import secureStoreHelper from "../storage/secureStore";
+import { generateIdempotencyKey } from "../../utils/idempotency";
 
 const axiosClient = axios.create({
   baseURL: Config.API_URL,
@@ -28,6 +29,18 @@ axiosClient.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
     }
 
+    // Injection automatique d'Idempotency-Key pour les requêtes critiques
+    if (config.method?.toLowerCase() === "post" && config.url) {
+      const isIdempotentEndpoint =
+        config.url === "/deliveries" ||
+        config.url.endsWith("/deliveries") ||
+        config.url === "/missions" ||
+        config.url.endsWith("/missions");
+
+      if (isIdempotentEndpoint && !config.headers["Idempotency-Key"] && !config.headers["idempotency-key"]) {
+        config.headers["Idempotency-Key"] = generateIdempotencyKey();
+      }
+    }
     
     console.log("Authorization =", config.headers?.Authorization);
 

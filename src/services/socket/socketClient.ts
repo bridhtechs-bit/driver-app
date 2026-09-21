@@ -1,6 +1,6 @@
 import { io, Socket } from 'socket.io-client';
 import Config from '@/constants/config';
-import secureStoreHelper from '@/services/api/secureStore';
+import secureStoreHelper from '@/services/storage/secureStore';
 
 let socket: Socket | null = null;
 

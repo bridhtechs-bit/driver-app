@@ -10,7 +10,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Controller } from "react-hook-form";
 
-import { useLoginForm, LoginFormData } from "@/hooks/useLoginForm";
+import { useLoginForm, LoginFormData } from "@/hooks/auth/useLoginForm";
 import { useLogin } from "@/hooks/auth/useLogin";
 import { colors, spacing } from "@/theme";
 

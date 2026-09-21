@@ -7,7 +7,7 @@
  * reste connecté même après fermeture de l'application.
  */
 
-import { secureStoreHelper } from "@/services/api/secureStore";
+import { secureStoreHelper } from "@/services/storage/secureStore";
 
 const ACCESS_TOKEN_KEY = "token";
 const USER_KEY = "user";

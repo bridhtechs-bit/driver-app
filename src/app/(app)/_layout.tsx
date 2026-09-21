@@ -3,6 +3,7 @@ import { useColorScheme } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 
+
 export default function AppLayout() {
   const scheme = useColorScheme();
   const insets = useSafeAreaInsets();
@@ -34,6 +35,7 @@ export default function AppLayout() {
         },
       }}
     >
+      
       <Tabs.Screen
         name="index"
         options={{

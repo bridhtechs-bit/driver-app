@@ -25,7 +25,7 @@ import axios from 'axios';
 
 import Config from '@/constants/config';
 
-import secureStoreHelper from '@/services/api/secureStore';
+import secureStoreHelper from '@/services/storage/secureStore';
 
 import { createSocketClient } from '@/services/socket/socketClient';
 
@@ -84,6 +84,10 @@ export async function sendDriverLocation(
       socket.connect();
     }
 
+    socket.emit('updateLocation', {
+      latitude,
+      longitude,
+    });
     socket.emit('driverLocation', {
       latitude,
       longitude,

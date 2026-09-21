@@ -1,8 +1,8 @@
 import React from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useAuth } from '@/hooks/useAuth';
-import { useDriver } from '@/hooks/useDriver';
+import { useAuth } from '@/hooks/auth/useAuth';
+import { useDriver } from '@/hooks/driver/useDriver';
 import { getDriverFullName } from '@/types/driver';
 import { colors, spacing } from '@/theme';
 

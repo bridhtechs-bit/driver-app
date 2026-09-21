@@ -14,6 +14,8 @@ import { useAppDispatch } from "@/store/hooks";
 import { setOnboardingCompleted } from "@/store/slices/authSlice";
 import { colors } from "@/theme";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { secureStoreHelper } from "@/services/storage/secureStore";
+import { ROUTES } from "@/navigation/routes";
 
 const { width, height } = Dimensions.get("window");
 
@@ -71,9 +73,10 @@ export default function OnboardingScreen() {
     handleComplete();
   };
 
-  const handleComplete = () => {
+  const handleComplete = async () => {
+    await secureStoreHelper.setItem("onBoardingCompleted", "true");
     dispatch(setOnboardingCompleted(true));
-    router.replace("/login");
+    router.replace(ROUTES.LOGIN);
   };
 
   const handleScroll = (event: any) => {

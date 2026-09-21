@@ -13,7 +13,13 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import * as Location from "expo-location";
 
-import { useAppSelector } from "@/store/hooks";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import {
+  clearDriverLocation,
+  setLocationError,
+  setTrackingStatus,
+  updateDriverLocation,
+} from "@/store/slices/locationSlice";
 
 import {
   useGetDriverProfileQuery,
@@ -42,6 +48,8 @@ export type BackgroundLocationState = {
 };
 
 export function useBackgroundLocation(): BackgroundLocationState {
+
+  const dispatch = useAppDispatch();
 
   const isAuthenticated = useAppSelector(
     (state) => state.auth.isAuthenticated
@@ -113,6 +121,15 @@ export function useBackgroundLocation(): BackgroundLocationState {
 
           try {
 
+            dispatch(
+              updateDriverLocation({
+                latitude,
+                longitude,
+              })
+            );
+
+            dispatch(setTrackingStatus(true));
+
             await sendDriverLocation(
               latitude,
               longitude
@@ -123,6 +140,14 @@ export function useBackgroundLocation(): BackgroundLocationState {
             console.warn(
               "[Foreground] send failed",
               err
+            );
+
+            dispatch(
+              setLocationError(
+                err instanceof Error
+                  ? err.message
+                  : "Impossible de synchroniser la position"
+              )
             );
 
           }
@@ -194,6 +219,9 @@ export function useBackgroundLocation(): BackgroundLocationState {
       // Tracking foreground
       await startForegroundWatcher();
 
+      dispatch(setTrackingStatus(true));
+      dispatch(setLocationError(null));
+
       if (mountedRef.current) {
         trackingActiveRef.current = true;
         setTrackingActive(true);
@@ -230,6 +258,9 @@ export function useBackgroundLocation(): BackgroundLocationState {
       if (started) {
         await stopTracking();
       }
+
+      dispatch(setTrackingStatus(false));
+      dispatch(clearDriverLocation());
 
       if (mountedRef.current) {
         trackingActiveRef.current = false;

@@ -3,6 +3,7 @@ import authReducer from '@/store/slices/authSlice';
 import driverReducer from '@/store/slices/driverSlice';
 import deliveryReducer from '@/store/slices/deliverySlice';
 import activeDeliveryReducer from '@/store/slices/activeDeliverySlice';
+import locationReducer from '@/store/slices/locationSlice';
 import { rootApi } from '@/services/api/rootApi';
 
 export const store = configureStore({
@@ -11,6 +12,7 @@ export const store = configureStore({
     driver: driverReducer,
     delivery: deliveryReducer,
     activeDelivery: activeDeliveryReducer,
+    location: locationReducer,
     [rootApi.reducerPath]: rootApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>

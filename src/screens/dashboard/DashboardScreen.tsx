@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { StyleSheet, ScrollView, View, Text, ActivityIndicator, RefreshControl, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useDriver } from '@/hooks/useDriver';
+import { useDriver } from '@/hooks/driver/useDriver';
 import { ProfileHeader } from '@/components/dashboard/ProfileHeader';
 import { StatusToggle } from '@/components/dashboard/StatusToggle';
 import { StatCard } from '@/components/dashboard/StatCard';

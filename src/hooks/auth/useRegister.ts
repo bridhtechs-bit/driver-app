@@ -1,7 +1,8 @@
 import { useRouter } from "expo-router";
+import { ROUTES } from "@/navigation/routes";
 import { useAppDispatch } from "@/store/hooks";
 import { useRegisterMutation } from "@/services/api/authApi";
-import { secureStoreHelper } from "@/services/api/secureStore";
+import { secureStoreHelper } from "@/services/storage/secureStore";
 import { setCredentials } from "@/store/slices/authSlice";
 
 export function useRegister() {
@@ -26,7 +27,7 @@ export function useRegister() {
     );
     
     //rediriger vers la page de connexion après l'inscription
-    router.replace("/login");
+    router.replace(ROUTES.LOGIN);
   };
 
   return {

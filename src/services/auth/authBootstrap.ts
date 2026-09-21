@@ -9,13 +9,14 @@
 
 import { User } from "@/types/auth";
 
-import { secureStoreHelper } from "@/services/api/secureStore";
+import { secureStoreHelper } from "@/services/storage/secureStore";
 
 export type BootstrapSession = {
   authenticated: boolean;
   token: string | null;
-  refreshToken: string |null;
+  refreshToken: string | null;
   user: User | null;
+  onboardingCompleted: boolean;
 };
 
 export async function bootstrapAuth(): Promise<BootstrapSession> {
@@ -23,6 +24,8 @@ export async function bootstrapAuth(): Promise<BootstrapSession> {
     // Read canonical keys from secure storage
     const token = await secureStoreHelper.getItem("token");
     const refreshToken = await secureStoreHelper.getItem("refresh_token");
+    const onboardingCompletedValue = await secureStoreHelper.getItem("onBoardingCompleted");
+    const onboardingCompleted = onboardingCompletedValue === "true";
 
     if (!token) {
       return {
@@ -30,6 +33,7 @@ export async function bootstrapAuth(): Promise<BootstrapSession> {
         token: null,
         refreshToken: null,
         user: null,
+        onboardingCompleted,
       };
     }
 
@@ -46,6 +50,7 @@ export async function bootstrapAuth(): Promise<BootstrapSession> {
       token,
       refreshToken,
       user: null,
+      onboardingCompleted,
     };
 
   } catch (err) {
@@ -59,6 +64,7 @@ export async function bootstrapAuth(): Promise<BootstrapSession> {
       token: null,
       refreshToken: null,
       user: null,
+      onboardingCompleted: false,
     };
   }
 }
